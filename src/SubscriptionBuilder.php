@@ -10,6 +10,7 @@ use Laravel\CashierAuthorizeNet\Requestor;
 use net\authorize\api\contract\v1 as AnetAPI;
 use net\authorize\api\constants as AnetConstants;
 use net\authorize\api\controller as AnetController;
+use Illuminate\Support\Str;
 
 class SubscriptionBuilder
 {
@@ -74,7 +75,7 @@ class SubscriptionBuilder
      *
      * @param  mixed  $user
      * @param  string  $name
-     * @param  string  $plan
+     * @param  array  $plan
      * @return void
      */
     public function __construct($user, $name, $plan)
@@ -160,6 +161,9 @@ class SubscriptionBuilder
         return $this->create(null, $options);
     }
 
+    public function test(){
+        return $this->plan;
+    }
     /**
      * Create a new Authorize subscription.
      *
@@ -167,19 +171,20 @@ class SubscriptionBuilder
      * @param  array  $options
      * @return \Laravel\Cashier\Subscription
      */
-    public function create()
+    public function create_old()
     {
-        $config = Config::get('cashier-authorize');
-
+        // $config = Config::get('cashier-authorize');
+        // Set the transaction's refId
+        $refId = 'ref' . time();
         // Subscription Type Info
         $subscription = new AnetAPI\ARBSubscriptionType();
-        $subscription->setName($config[$this->plan]['name']);
+        $subscription->setName($this->plan['name']);
 
         $interval = new AnetAPI\PaymentScheduleType\IntervalAType();
-        $interval->setLength($config[$this->plan]['interval']['length']);
-        $interval->setUnit($config[$this->plan]['interval']['unit']);
+        $interval->setLength($this->plan['invoice_period']);
+        $interval->setUnit('months'); // To Do $this->plan['invoice_interval'
 
-        $trialDays = $config[$this->plan]['trial_days'];
+        $trialDays = $this->plan['trial_period'];
         $this->trialDays($trialDays);
 
         // Must use mountain time according to Authorize.net
@@ -188,22 +193,27 @@ class SubscriptionBuilder
         $paymentSchedule = new AnetAPI\PaymentScheduleType();
         $paymentSchedule->setInterval($interval);
         $paymentSchedule->setStartDate(new DateTime($nowInMountainTz));
-        $paymentSchedule->setTotalOccurrences($config[$this->plan]['total_occurances']);
-        $paymentSchedule->setTrialOccurrences($config[$this->plan]['trial_occurances']);
+        $paymentSchedule->setTotalOccurrences(9999); //TO DO make it variable
+        $paymentSchedule->setTrialOccurrences(0); //TO DO make it variable
 
-        $amount = round(floatval($config[$this->plan]['amount']) * floatval('1.'.$this->getTaxPercentageForPayload()), 2);
-
+        $amount = round(floatval($this->plan['price']) * floatval('1.'.$this->getTaxPercentageForPayload()), 2);
         $subscription->setPaymentSchedule($paymentSchedule);
         $subscription->setAmount($amount);
-        $subscription->setTrialAmount($config[$this->plan]['trial_amount']);
+        $subscription->setTrialAmount(0); //TO DO make it variable
 
         $profile = new AnetAPI\CustomerProfileIdType();
         $profile->setCustomerProfileId($this->user->authorize_id);
         $profile->setCustomerPaymentProfileId($this->user->authorize_payment_id);
         $subscription->setProfile($profile);
 
+        $order = new AnetAPI\OrderType();
+        $order->setInvoiceNumber(mt_rand(10000, 99999));   //generate random invoice number     
+        $order->setDescription($this->plan['description']); 
+        $subscription->setOrder($order);
+
         $requestor = new Requestor();
         $request = $requestor->prepare((new AnetAPI\ARBCreateSubscriptionRequest()));
+        $request->setRefId($refId);
         $request->setSubscription($subscription);
         $controller = new AnetController\ARBCreateSubscriptionController($request);
 
@@ -219,7 +229,7 @@ class SubscriptionBuilder
             return $this->user->subscriptions()->create([
                 'name' => $this->name,
                 'authorize_id' => $response->getSubscriptionId(),
-                'authorize_plan' => $this->plan,
+                'authorize_plan' => $this->plan['name'],
                 'authorize_payment_id' => $this->user->authorize_payment_id,
                 'metadata' => json_encode([
                     'refId' => $requestor->refId
@@ -234,6 +244,7 @@ class SubscriptionBuilder
         }
     }
 
+    
     /**
      * Get the trial ending date for the Authorize payload.
      *

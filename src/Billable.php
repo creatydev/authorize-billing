@@ -112,10 +112,10 @@ trait Billable
      * Begin creating a new subscription.
      *
      * @param  string  $subscription
-     * @param  string  $plan
+     * @param  array  $plan
      * @return \Laravel\CashierAuthorizeNet\SubscriptionBuilder
      */
-    public function newSubscription($subscription, $plan)
+    public function anetNewSubscription($subscription, $plan)
     {
         return new SubscriptionBuilder($this, $subscription, $plan);
     }
