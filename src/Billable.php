@@ -182,7 +182,7 @@ trait Billable
      * @param  string  $subscription
      * @return \Laravel\Cashier\Subscription|null
      */
-    public function subscription($subscription = 'default')
+    public function anetSubscription($subscription = 'default')
     {
         return $this->subscriptions->sortByDesc(function ($value) {
             return $value->created_at->getTimestamp();
@@ -197,7 +197,7 @@ trait Billable
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function subscriptions()
+    public function anetSubscriptions()
     {
         return $this->hasMany(Subscription::class, 'user_id')->orderBy('created_at', 'desc');
     }
@@ -342,7 +342,7 @@ trait Billable
      * @param  string  $plan
      * @return \Illuminate\Support\Collection
      */
-    public function invoices($plan)
+    public function anetInvoices($plan)
     {
         $subscription = $this->subscriptions($plan)->first();
         $startDate = $subscription->created_at;
