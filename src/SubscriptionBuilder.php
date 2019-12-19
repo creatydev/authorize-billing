@@ -171,7 +171,7 @@ class SubscriptionBuilder
      * @param  array  $options
      * @return \Laravel\Cashier\Subscription
      */
-    public function create_old()
+    public function create()
     {
         // $config = Config::get('cashier-authorize');
         // Set the transaction's refId
@@ -225,8 +225,7 @@ class SubscriptionBuilder
             } else {
                 $trialEndsAt = $this->trialDays ? Carbon::now()->addDays($this->trialDays) : null;
             }
-
-            return $this->user->subscriptions()->create([
+            return [
                 'name' => $this->name,
                 'authorize_id' => $response->getSubscriptionId(),
                 'authorize_plan' => $this->plan['name'],
@@ -237,7 +236,19 @@ class SubscriptionBuilder
                 'quantity' => $this->quantity,
                 'trial_ends_at' => $trialEndsAt,
                 'ends_at' => null,
-            ]);
+            ];
+            // return $this->user->subscriptions()->create([
+            //     'name' => $this->name,
+            //     'authorize_id' => $response->getSubscriptionId(),
+            //     'authorize_plan' => $this->plan['name'],
+            //     'authorize_payment_id' => $this->user->authorize_payment_id,
+            //     'metadata' => json_encode([
+            //         'refId' => $requestor->refId
+            //     ]),
+            //     'quantity' => $this->quantity,
+            //     'trial_ends_at' => $trialEndsAt,
+            //     'ends_at' => null,
+            // ]);
         } else {
             $errorMessages = $response->getMessages()->getMessage();
             throw new Exception("Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText(), 1);
