@@ -485,11 +485,11 @@ trait Billable
         $paymentCreditCard = new AnetAPI\PaymentType();
         $paymentCreditCard->setCreditCard($creditCard);
 
-        $name = explode(' ', $this->name);
+        // $name = explode(' ', $this->name);
 
         $billto = new AnetAPI\CustomerAddressType();
-        $billto->setFirstName($name[0]);
-        $billto->setLastName($name[1]);
+        $billto->setFirstName($this->first_name);
+        $billto->setLastName($this->last_name);
         $billto->setAddress($this->address);
         $billto->setCity($this->city);
         $billto->setState($this->state);
