@@ -569,7 +569,7 @@ trait Billable
      */
     public function taxPercentage()
     {
-        return 0;
+        return getenv('ADN_TAX') ? getenv('ADN_TAX') : 0;
     }
 
     /**

@@ -196,7 +196,8 @@ class SubscriptionBuilder
         $paymentSchedule->setTotalOccurrences(9999); //TO DO make it variable
         $paymentSchedule->setTrialOccurrences(0); //TO DO make it variable
 
-        $amount = round(floatval($this->plan['price']) * floatval('1.'.$this->getTaxPercentageForPayload()), 2);
+        // $amount = round(floatval($this->plan['price']) * floatval('1.'.$this->getTaxPercentageForPayload()), 2);
+        $amount = round(floatval($this->plan['price']) + floatval($this->plan['price'] * $this->getTaxPercentageForPayload() / 100), 2);
         $subscription->setPaymentSchedule($paymentSchedule);
         $subscription->setAmount($amount);
         $subscription->setTrialAmount(0); //TO DO make it variable
