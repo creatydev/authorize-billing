@@ -26,7 +26,7 @@ class SubscriptionUpdateService
         foreach ($subscriptions as $subscription) {
             $requestor = new Requestor;
             $request = $requestor->prepare(new AnetAPI\ARBGetSubscriptionStatusRequest());
-            $request->setSubscriptionId($subscription->subscription_Id);
+            $request->setSubscriptionId($subscription->subscription_id);
 
             $controller = new AnetController\ARBGetSubscriptionStatusController($request);
             $response = $controller->executeWithApiResponse($requestor->env);
