@@ -181,8 +181,8 @@ class SubscriptionBuilder
         $subscription->setName($this->plan['name']);
 
         $interval = new AnetAPI\PaymentScheduleType\IntervalAType();
-        $interval->setLength($this->plan['invoice_period']);
-        $interval->setUnit('months'); // To Do $this->plan['invoice_interval'
+        $interval->setLength($this->plan['duration']);
+        $interval->setUnit('days'); // To Do $this->plan['invoice_interval'
 
         $trialDays = $this->plan['trial_period'];
         $this->trialDays($trialDays);

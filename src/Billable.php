@@ -393,10 +393,10 @@ trait Billable
         $paymentCreditCard->setCreditCard($creditCard);
 
         // Create the Bill To info for new payment type
-        $name = explode(' ', $this->name);
+        // $name = explode(' ', $this->name);
         $billto = new AnetAPI\CustomerAddressType();
-        $billto->setFirstName($name[0]);
-        $billto->setLastName($name[1]);
+        $billto->setFirstName($this->first_name);
+        $billto->setLastName($this->last_name);
         $billto->setAddress($this->address);
         $billto->setCity($this->city);
         $billto->setState($this->state);
@@ -599,5 +599,53 @@ trait Billable
         }
 
         return $brand;
+    }
+
+    /* Update an existing subscription */
+    function updateSubscription($subscriptionId)
+    {
+        $subscription = new AuthorizeNet_Subscription;
+
+        $subscription->amount = $_POST['price'];
+
+        $result = $authorize->updateSubscription($userdata['subscription_id'], $subscription);
+
+        if ($result->xml->messages->resultCode != 'Ok')
+            $errors[] = "Recurring billing could not be updated - {$result->xml->messages->message->text}";
+        
+            // $refId = 'ref' . time();
+        // $subscription = new AnetAPI\ARBSubscriptionType();
+        // $creditCard = new AnetAPI\CreditCardType();
+        // $creditCard->setCardNumber("4111111111111111");
+        // $creditCard->setExpirationDate("2038-12");
+        // $payment = new AnetAPI\PaymentType();
+        // $payment->setCreditCard($creditCard);
+        // $profile = new AnetAPI\CustomerProfileIdType();
+        // $profile->setCustomerProfileId("121212");
+        // $profile->setCustomerPaymentProfileId("131313");
+        // $profile->setCustomerAddressId("141414");
+        // $subscription->setPayment($payment);
+        
+        // $request = new AnetAPI\ARBUpdateSubscriptionRequest();
+        // $request->setMerchantAuthentication($merchantAuthentication);
+        // $request->setRefId($refId);
+        // $request->setSubscriptionId($subscriptionId);
+        // $request->setSubscription($subscription);
+        // $controller = new AnetController\ARBUpdateSubscriptionController($request);
+        // $response = $controller->executeWithApiResponse( \net\authorize\api\constants\ANetEnvironment::SANDBOX);
+        
+        // if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") )
+        // {
+        //     $errorMessages = $response->getMessages()->getMessage();
+        //     echo "SUCCESS Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n";
+            
+        // }
+        // else
+        // {
+        //     echo "ERROR :  Invalid response\n";
+        //     $errorMessages = $response->getMessages()->getMessage();
+        //     echo "Response : " . $errorMessages[0]->getCode() . "  " .$errorMessages[0]->getText() . "\n";
+        // }
+        // return $response;
     }
 }
