@@ -602,18 +602,32 @@ trait Billable
     }
 
     /* Update an existing subscription */
-    function updateSubscription($subscriptionId)
+    function updateSubscription($subscription, $newprice)
     {
-        $subscription = new AuthorizeNet_Subscription;
+        $subscription = new AnetAPI\ARBSubscriptionType();
 
-        $subscription->amount = $_POST['price'];
+        $amount = round(floatval($subscription->charging_price) + floatval($subscription->charging_price * $this->getTaxPercentageForPayload() / 100), 2);
+        // $subscription->setPaymentSchedule($paymentSchedule);
+        $subscription->setAmount($amount + $newprice);
 
-        $result = $authorize->updateSubscription($userdata['subscription_id'], $subscription);
+        $request = new AnetAPI\ARBUpdateSubscriptionRequest();
+        $request = new AnetAPI\ARBUpdateSubscriptionRequest();
+        $request->setSubscriptionId($subscription->subscription_id);
+        $request->setSubscription($subscription);
+        $controller = new AnetController\ARBCreateSubscriptionController($request);
 
-        if ($result->xml->messages->resultCode != 'Ok')
-            $errors[] = "Recurring billing could not be updated - {$result->xml->messages->message->text}";
-        
-            // $refId = 'ref' . time();
+        $response = $controller->executeWithApiResponse($requestor->env);
+
+        if (($response != null) && ($response->getMessages()->getResultCode() == "Ok") ) {
+            return ['result' => $response->getSubscriptionId(), 'code' => 200];
+        }else{
+            return [
+                'result' => $response->getMessages()->getMessage(),
+                'code' => 401
+            ];
+        }
+
+        // $refId = 'ref' . time();
         // $subscription = new AnetAPI\ARBSubscriptionType();
         // $creditCard = new AnetAPI\CreditCardType();
         // $creditCard->setCardNumber("4111111111111111");
