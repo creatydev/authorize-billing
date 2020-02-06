@@ -10,6 +10,13 @@
 */
 
 return [
+    'authorize' => [
+        'login' => env('ADN_API_LOGIN_ID'),
+        'key' => env('ADN_TRANSACTION_KEY'),
+        'environment' => env('ADN_ENV', 'PRODUCTION'),
+        'signature' => env('AUTHORIZE_MERCHANT_SIGNATURE_KEY'),
+        'log' => env('ADN_LOG'),
+    ],
 
     // main
     'monthly-10-1' => [

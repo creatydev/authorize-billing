@@ -23,10 +23,10 @@ class Requestor
     public function prepare($request)
     {
         $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
-        $merchantAuthentication->setName(getenv('ADN_API_LOGIN_ID'));
-        $merchantAuthentication->setTransactionKey(getenv('ADN_TRANSACTION_KEY'));
+        $merchantAuthentication->setName(config('cashier-authorize.authorize.login'));
+        $merchantAuthentication->setTransactionKey(config('cashier-authorize.authorize.key'));
 
-        $env = strtoupper(getenv('ADN_ENV'));
+        $env = strtoupper(config('cashier-authorize.authorize.environment'));
 
         if ($env === '') {
             $env = 'SANDBOX';
